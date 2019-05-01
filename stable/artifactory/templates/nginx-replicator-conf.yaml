@@ -12,7 +12,7 @@ data:
   replicator-nginx.conf: |
       ## Artifactory replicator
       server {
-        listen         {{ .Values.nginx.externalPortReplicator }};
+        listen         {{ .Values.nginx.internalPortReplicator }};
         server_name    {{ include "artifactory.fullname" . }};
 
         client_max_body_size 0;

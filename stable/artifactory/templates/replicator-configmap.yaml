@@ -11,6 +11,6 @@ metadata:
 data:
   replicator.yaml: |
     externalUrl: {{ required "artifactory.replicator.publicUrl is required when artifactory.replicator.enabled is true" .Values.artifactory.replicator.publicUrl }}
-    internalUrl: http://localhost:6061
-    listenPort: 6061
+    internalUrl: http://localhost:{{ .Values.artifactory.internalPortReplicator }}
+    listenPort: {{ .Values.artifactory.internalPortReplicator }}
 {{- end -}}

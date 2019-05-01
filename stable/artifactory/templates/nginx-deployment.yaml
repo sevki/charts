@@ -67,7 +67,7 @@ spec:
               command:
               - '/bin/sh'
               - '-c'
-              - >
+              - |
                 {{- if (not .Values.nginx.customArtifactoryConfigMap) }}
                 until [ -f /etc/nginx/conf.d/artifactory.conf ]; do sleep 1; done;
                 if ! grep -q 'upstream' /etc/nginx/conf.d/artifactory.conf; then
@@ -76,13 +76,6 @@ spec:
                     /etc/nginx/conf.d/artifactory.conf;
                 fi;
                 {{- end }}
-                if [ -f /tmp/replicator-nginx.conf ]; then
-                cp -fv /tmp/replicator-nginx.conf /etc/nginx/conf.d/replicator-nginx.conf;
-                fi;
-                if [ -f /tmp/ssl/*.crt ]; then
-                rm -rf /var/opt/jfrog/nginx/ssl/example.*;
-                cp -fv /tmp/ssl/* /var/opt/jfrog/nginx/ssl;
-                fi;
                 sleep 5; nginx -s reload; touch /var/log/nginx/conf.done
         env:
         - name: ART_BASE_URL
@@ -111,23 +104,21 @@ spec:
           mountPath: {{ .Values.nginx.persistence.mountPath | quote }}
         {{- if .Values.artifactory.replicator.enabled }}
         - name: replicator-nginx-config
-          mountPath: "/tmp/replicator-nginx.conf"
+          mountPath: {{ .Values.nginx.persistence.mountPath }}/conf.d/replicator-nginx.conf
           subPath: replicator-nginx.conf
         {{- end }}
         {{- if .Values.nginx.tlsSecretName }}
         - name: ssl-secret-volume
-          mountPath: "/tmp/ssl"
+          mountPath: "/var/opt/jfrog/nginx/ssl"
         {{- end }}
         {{- if .Values.nginx.customConfigMap }}
         - name: nginx-config
           mountPath: "/etc/nginx/nginx.conf"
           subPath: "nginx.conf"
         {{- end }}
-        {{- if .Values.nginx.customArtifactoryConfigMap }}
         - name: artifactory-nginx-config
           mountPath: "/etc/nginx/conf.d/artifactory.conf"
           subPath: "artifactory.conf"
-        {{- end }}
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
         {{- if .Values.nginx.readinessProbe.enabled }}
@@ -190,10 +181,12 @@ spec:
         configMap:
           name: {{ .Values.nginx.customConfigMap }}
       {{- end }}
-      {{- if .Values.nginx.customArtifactoryConfigMap }}
       - name: artifactory-nginx-config
         configMap:
+      {{- if .Values.nginx.customArtifactoryConfigMap }}
           name: {{ .Values.nginx.customArtifactoryConfigMap }}
+      {{- else }}
+          name: {{ template "artifactory.fullname" . }}-artifactory-config
       {{- end}}
       - name: nginx-volume
       {{- if .Values.nginx.persistence.enabled }}
