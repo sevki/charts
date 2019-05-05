@@ -11,8 +11,13 @@ metadata:
 data:
   artifactory.conf: |
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+  {{- if .Values.nginx.tlsSecretName }}
+    ssl_certificate      /etc/nginx/ssl/tls.crt;
+    ssl_certificate_key  /etc/nginx/ssl/tls.key;
+  {{- else }}
     ssl_certificate      /etc/nginx/ssl/example.crt;
     ssl_certificate_key  /etc/nginx/ssl/example.key;
+  {{- end }}
     ssl_session_cache shared:SSL:1m;
     ssl_prefer_server_ciphers   on;
     ## server configuration

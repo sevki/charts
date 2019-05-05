@@ -625,7 +625,6 @@ The following table lists the configurable parameters of the artifactory chart a
 | `nginx.readinessProbe.failureThreshold`    | Minimum consecutive failures for the probe to be considered failed after having succeeded.   | 1 |
 | `nginx.tlsSecretName` |  SSL secret that will be used by the Nginx pod |                                                 |
 | `nginx.env.artUrl` | Nginx Environment variable Artifactory URL | `"http://artifactory:8081/artifactory"`                |
-| `nginx.env.ssl` | Nginx Environment enable ssl | `true`                                                                  |
 | `nginx.env.skipAutoConfigUpdate`  | Nginx Environment to disable auto configuration update | `false`                     |
 | `nginx.customConfigMap`           | Nginx CustomeConfigMap name for `nginx.conf` | ` `                                   |
 | `nginx.customArtifactoryConfigMap`| Nginx CustomeConfigMap name for `artifactory.conf` | ` `                             |

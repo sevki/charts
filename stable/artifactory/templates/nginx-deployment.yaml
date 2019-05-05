@@ -61,22 +61,16 @@ spec:
       - name: {{ .Values.nginx.name }}
         image: '{{ .Values.nginx.image.repository }}:{{ default .Chart.AppVersion .Values.nginx.image.version }}'
         imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+        {{- if .Values.nginx.postStartCommand }}
         lifecycle:
           postStart:
             exec:
               command:
-              - '/bin/sh'
-              - '-c'
-              - |
-                {{- if (not .Values.nginx.customArtifactoryConfigMap) }}
-                until [ -f /etc/nginx/conf.d/artifactory.conf ]; do sleep 1; done;
-                if ! grep -q 'upstream' /etc/nginx/conf.d/artifactory.conf; then
-                sed -i -e 's,proxy_pass.*http://artifactory.*/artifactory/\(.*\);,proxy_pass       http://{{ $serviceName }}:{{ $servicePort }}/artifactory/\1;,g' \
-                    -e 's,server_name .*,server_name ~(?<repo>.+)\\.{{ $serviceName }} {{ $serviceName }};,g' \
-                    /etc/nginx/conf.d/artifactory.conf;
-                fi;
-                {{- end }}
-                sleep 5; nginx -s reload; touch /var/log/nginx/conf.done
+                - '/bin/sh'
+                - '-c'
+                - |
+                  {{ .Values.nginx.postStartCommand }}
+        {{- end }}
         env:
         - name: ART_BASE_URL
           {{- if .Values.nginx.env.artUrl }}
@@ -85,7 +79,7 @@ spec:
           value: 'http://{{ $serviceName }}:{{ $servicePort }}/artifactory'
           {{- end }}
         - name: SSL
-          value: "{{ .Values.nginx.env.ssl }}"
+          value: "false"
         {{- if .Values.nginx.customArtifactoryConfigMap }}
         - name: SKIP_AUTO_UPDATE_CONFIG
           value: "true"

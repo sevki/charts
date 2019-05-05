@@ -1,6 +1,9 @@
 # JFrog Artifactory Chart Changelog
 All changes to this chart will be documented in this file.
 
+## [7.14.3] - May 1, 2019
+* Use configmaps for nginx configuration
+
 ## [7.14.2] - May 21, 2019
 * Updated Artifactory version to 6.10.1
 
